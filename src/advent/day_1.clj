@@ -21,44 +21,31 @@
 ;; Begin part two related functionality
 (def text->digit
   "A map from text literals to corresponding digits"
-  {"one"   1
-   "1"     1
-   "two"   2
-   "2"     2
-   "three" 3
-   "3"     3
-   "four"  4
-   "4"     4
-   "five"  5
-   "5"     5
-   "six"   6
-   "6"     6
-   "seven" 7
-   "7"     7
-   "eight" 8
-   "8"     8
-   "nine"  9
-   "9"     9})
+  {"one"   1 "1" 1
+   "two"   2 "2" 2
+   "three" 3 "3" 3
+   "four"  4 "4" 4
+   "five"  5 "5" 5
+   "six"   6 "6" 6
+   "seven" 7 "7" 7
+   "eight" 8 "8" 8
+   "nine"  9 "9" 9})
 
 (def text-literal-regex
   "Regex used to match on the text literals in the text->digit map"
   (->> text->digit
        keys
        (clojure.string/join "|")
-       (format "^(%s)")
+       (format "(?=(%s))")
        re-pattern))
 
 (defn part-two-line->digits
   "Take a line of text and return the first and last digit using the rules in part two"
   [line]
-  (loop [ix     0
-         result []]
-    (if (= ix (count line))
-      [(first result) (last result)]
-      (let [result (if-some [[match _] (re-find text-literal-regex (subs line ix))]
-                     (conj result (text->digit match))
-                     result)]
-        (recur (inc ix) result)))))
+  (->> line
+       (re-seq text-literal-regex)
+       ((juxt first last))
+       (mapv (comp text->digit second))))
 
 (comment
   (->> (line-seq (io/reader "resources/day_1.txt"))
