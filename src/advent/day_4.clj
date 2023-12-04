@@ -39,6 +39,7 @@
   (range (inc id) (+ 1 id (count (filter winning-numbers player-numbers)))))
 
 (defn solve-part-two
+  "A naive first pass attempt"
   [lines]
   (let [cards    (map line->card lines)
         id->card (into {} (for [{id :id :as card} cards]
@@ -52,6 +53,30 @@
             (into (pop stack) new-cards)
             (inc result)))))))
 
+(defn solve-part-two-fast
+  "The thinking man's solution to part two"
+  [lines]
+  (let [all-cards (mapv line->card lines)]
+    (loop [id->values {}
+           cards      all-cards]
+      (if-not (seq cards)
+        (->> all-cards
+             (keep (comp id->values :id))
+             (apply +))
+        (let [card     (peek cards)
+              coppies  (card->coppies card)
+              card-val (->> coppies
+                            (keep id->values)
+                            (apply +)
+                            (inc))]
+          (recur
+            (assoc id->values (:id card) card-val)
+            (pop cards)))))))
+
 (comment
   (solve-part-one puzzle-input)
-  (solve-part-two puzzle-input))
+  (time
+    (solve-part-two puzzle-input)) ;; 11.76 seconds :(
+  (time
+    (solve-part-two-fast puzzle-input)) ;; 2.03 milliseconds :D
+  )

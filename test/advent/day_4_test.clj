@@ -29,4 +29,5 @@
            (set (sut/card->coppies (first cards)))))))
 
 (deftest solve-part-two-test
-  (is (= 30 (sut/solve-part-two sample-input))))
+  (is (= 30 (sut/solve-part-two sample-input)))
+  (is (= 30 (sut/solve-part-two-fast sample-input))))
