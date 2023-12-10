@@ -1,0 +1,69 @@
+(ns advent.day-10-test
+  (:require [advent.day-10 :as sut]
+            [clojure.test :refer [deftest testing is]]
+            [clojure.java.io :as io]))
+
+
+(def sample-input
+  (line-seq (io/reader "resources/day_10_sample.txt")))
+
+(def sample-map
+  (sut/input->map sample-input))
+
+(deftest find-start-test
+  (is (= [1 1] (sut/find-start sample-map))))
+
+(deftest valid-neighbors-test
+  (is (= [[3 1]
+          [1 1]]
+         (sut/valid-neighbors sample-map [2 1]))))
+
+(deftest infer-start-test
+  (let [{:keys [south? east? west? north?]}
+        (get sample-map [1 1])]
+    (is east?)
+    (is south?)
+    (is (not north?))
+    (is (not west?))))
+
+(deftest find-loop-test
+  (is (= 8
+         (count (sut/find-loop sample-map)))))
+
+(deftest solve-part-one-test
+  (is (= 4
+         (sut/solve-part-one sample-input))))
+
+(defonce small-enclosed-example
+  (->> "resources/day_10_sample_small_loop.txt"
+       (io/reader)
+       (line-seq)
+       (sut/input->map)))
+
+(deftest find-enclosed-adjacent-space
+  (is (= #{[2 6]
+           [3 6]}
+        (sut/find-enclosed-adjacent-space
+          small-enclosed-example
+          [2 6])))
+  (is (not
+        (sut/find-enclosed-adjacent-space
+          small-enclosed-example
+          [3 3]))))
+
+(deftest find-pipeway-test
+  (is (nil? (sut/find-pipeway
+                  small-enclosed-example
+                  [3 6])))
+  (is (= [8 6]
+         (sut/find-pipeway
+           small-enclosed-example
+           [2 6]))))
+
+(deftest enclosed-tiles-test
+  (let [enclosed-sets (sut/enclosed-tiles small-enclosed-example)]
+    (is (= 2 (count enclosed-sets)))
+    (is (= 4 (count (apply concat enclosed-sets))))))
+
+(deftest solve-part-two-test
+  (is (= 4 (sut/solve-part-two))))
